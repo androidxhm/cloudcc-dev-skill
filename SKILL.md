@@ -14,8 +14,8 @@ description: 用于 CloudCC CRM 二次开发设计与实施。优先通过 `clou
 
 - 先确认 CLI 可用：优先检查 `cloudcc --version`。
 - 若未安装，执行：`npm i -g cloudcc-cli@latest`。
-- 当进行 CloudCC 方案设计时，优先读取`introduction`获取概括信息后，再设计
-- 当进行 CloudCC 开发时，优先读取`devguide`获取模块信息后，再开发
+- 当进行 CloudCC 方案设计时，必须读取所有模块的`introduction`文档后，再设计
+- 当进行 CloudCC 方案开发时，需要读取，对应模块的`devguide`信息后，再开发
 - 命令统一格式：`cloudcc doc <module> <introduction|devguide>`。
 - 特例：`config` 仅支持 `devguide`，不支持 `introduction`。
 
@@ -82,3 +82,13 @@ description: 用于 CloudCC CRM 二次开发设计与实施。优先通过 `clou
 - **发布日志/Release Notes 规则（强制）**：凡是更新发布记录、版本日志、README 中
   `Release`/`Release Notes`
   区块，内容必须使用英文（标题、日期标签、条目描述均不得使用中文）。
+
+
+## 快速规则
+
+- 先确认 CLI 可用：优先检查 `cloudcc --version`。
+- 若未安装，执行：`npm i -g cloudcc-cli@latest`。
+- 当进行 CloudCC 方案设计时，必须读取所有模块的`introduction`文档后，再设计
+- 当进行 CloudCC 方案开发时，需要读取，对应模块的`devguide`信息后，再开发
+- 命令统一格式：`cloudcc doc <module> <introduction|devguide>`。
+- 特例：`config` 仅支持 `devguide`，不支持 `introduction`。
