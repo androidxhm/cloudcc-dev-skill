@@ -7,16 +7,14 @@ description: 用于 CloudCC CRM 二次开发设计与实施。优先通过 `clou
 
 ## 必须保留
 
-- 使用前必须检查npm全局包，是否安装了cloudcc-cli ，如果没有，那么先全局安装 npm
-  i -g cloudcc-cli@latest
+- 使用前必须检查npm全局包，是否安装了cloudcc-cli ，如果没有，那么先全局安装 npm i -g cloudcc-cli@latest
 
 ## 快速规则
 
 - 先确认 CLI 可用：优先检查 `cloudcc --version`。
 - 若未安装，执行：`npm i -g cloudcc-cli@latest`。
-- 当进行 CloudCC 方案设计时，必须读取所有模块的`introduction`文档后，再设计
-- 当进行 CloudCC 方案开发时，需要读取，对应模块的`devguide`信息后，再开发
-- 命令统一格式：`cloudcc doc <module> <introduction|devguide>`。
+- 当进行 CloudCC 方案设计时，必须读取所有模块的`introduction`文档后，再设计，命令统一格式：`cloudcc doc <module> introduction`
+- 当进行 CloudCC 方案开发时，需要读取，对应模块的`devguide`信息后，再开发，命令统一格式：`cloudcc doc <module> devguide`
 - 特例：`config` 仅支持 `devguide`，不支持 `introduction`。
 
 ## 模块指令清单
@@ -50,13 +48,13 @@ description: 用于 CloudCC CRM 二次开发设计与实施。优先通过 `clou
 - 类：`cloudcc doc classes introduction`、`cloudcc doc classes devguide`
 - 触发器：`cloudcc doc triggers introduction`、`cloudcc doc triggers devguide`
 - 定时类：`cloudcc doc timer introduction`、`cloudcc doc timer devguide`
-- 定时作业：`cloudcc doc scheduleJob introduction`、`cloudcc doc scheduleJob devguide`（支持 `create` / `get` / `detail` / `delete`，新建前需先获取可用 `prgid`）
+- 定时作业：`cloudcc doc scheduleJob introduction`、`cloudcc doc scheduleJob devguide`
 
 ### 前端扩展
 
 - 自定义Vue组件：`cloudcc doc plugin introduction`、`cloudcc doc plugin devguide`
-- 自定义 HTML 组件：`cloudcc doc html introduction`、`cloudcc doc html devguide`
-- Site 开发规范：`cloudcc doc site introduction`、`cloudcc doc site devguide`
+- 自定义HTML组件：`cloudcc doc html introduction`、`cloudcc doc html devguide`
+- Site开发规范：`cloudcc doc site introduction`、`cloudcc doc site devguide`
 - 自定义页面：`cloudcc doc customPage introduction`、`cloudcc doc customPage devguide`
 - 客户端脚本：`cloudcc doc script introduction`、`cloudcc doc script devguide`
 - 静态资源：`cloudcc doc staticResource introduction`、`cloudcc doc staticResource devguide`
@@ -94,12 +92,72 @@ description: 用于 CloudCC CRM 二次开发设计与实施。优先通过 `clou
   `Release`/`Release Notes`
   区块，内容必须使用英文（标题、日期标签、条目描述均不得使用中文）。
 
-## 快速规则
+## 最佳实践
 
-- 先确认 CLI 可用：优先检查 `cloudcc --version`。
-- 若未安装，执行：`npm i -g cloudcc-cli@latest`。
-- 当进行 CloudCC 方案设计时，必须读取所有模块的`introduction`文档后，再设计
-- 当进行 CloudCC 方案开发时，需要读取，对应模块的`devguide`信息后，再开发
-- 命令统一格式：`cloudcc doc <module> <introduction|devguide>`。
-- 特例：`config` 仅支持 `devguide`，不支持 `introduction`。
+### CCDK 与自定义类
 
+**CCDK** 是运行在自定义页面、自定义 HTML、自定义 Site 等前端场景中的 **JavaScript 库**，作用有两类：
+
+1. **前端 ↔ 自定义类**：通过 `$CCDK.CCCommon.post` 调用已发布的自定义类方法（方法签名、参数类型需与 Java 侧一致）。
+2. **前端 ↔ CRM 壳能力**：通过 `$CCDK.CCPage` 等与 CRM 前端交互（如打开列表页、视图等）。
+
+#### 示例一：自定义类（Java）
+
+```java
+package classes.MyClass;
+
+import com.cloudcc.core.*;
+// @SOURCE_CONTENT_START
+public class MyClass {
+    private UserInfo userInfo;
+    private CCService cs;
+
+    public MyClass(UserInfo userInfo) {
+        this(userInfo, new CCService(userInfo));
+    }
+
+    public MyClass(UserInfo userInfo, CCService cs) {
+        this.userInfo = userInfo;
+        this.cs = cs;
+    }
+
+    public void execute(String name, String address) {
+        // 业务逻辑
+    }
+}
+// @SOURCE_CONTENT_END
+```
+
+#### 示例二：前端调用（与上面 `execute(String, String)` 对应）
+
+上述脚本可写在自定义 Vue 组件、自定义 HTML、Site 等支持 CCDK 的页面中。
+
+```javascript
+const className = "MyClass";
+const methodName = "execute";
+const params = [
+  { argType: "java.lang.String", argValue: "hello" },
+  { argType: "java.lang.String", argValue: "world" },
+];
+const config = { timeout: 60000 }; // 毫秒，例如 60 秒
+
+$CCDK.CCCommon.post(className, methodName, params, config)
+  .then((res) => {
+    const data = res.data;
+    console.log(data);
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+```
+
+#### 示例三：与CRM系统交互，打开列表视图页
+
+```javascript
+const pageId = $CCDK.CCPage.openListPage({
+  menuId: "aaa-223",
+  prefix: "001",
+  viewId: "ace1111",
+  layoutType: "list",
+});
+```
